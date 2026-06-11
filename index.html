@@ -100,7 +100,7 @@ window.uploadPDF = async function () {
   // 1. Upload file to Supabase Storage
   const { error: uploadError } = await supabaseClient
     .storage
-    .from("cause-pdfs")
+    .from("cases")
     .upload(fileName, file);
 
   if (uploadError) {
@@ -111,7 +111,7 @@ window.uploadPDF = async function () {
   // 2. Get public URL
   const { data: urlData } = supabaseClient
     .storage
-    .from("cause-pdfs")
+    .from("cases")
     .getPublicUrl(fileName);
 
   const pdfUrl = urlData.publicUrl;
