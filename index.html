@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zunheboto Cause List Portal test 10</title>
+<title>Zunheboto Cause List Portal test 11</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -18,7 +18,7 @@ a{color:blue}
 
 <body>
 
-<h1>Zunheboto Cause List Portal test 10</h1>
+<h1>Zunheboto Cause List Portal test 11</h1>
 
 <div class="card">
 <button onclick="showLogin()">Admin Login</button>
@@ -99,9 +99,10 @@ window.uploadPDF = async function () {
 
   // 1. Upload file to Supabase Storage
   const { error: uploadError } = await supabaseClient
-    .storage
-    .from("case-pdfs")
-    .upload(fileName, file);
+  .storage
+  .from("cause-pdfs")
+  .upload(fileName, file);
+
 
   if (uploadError) {
     alert("Upload failed: " + uploadError.message);
@@ -109,22 +110,22 @@ window.uploadPDF = async function () {
   }
 
   // 2. Get public URL
-  const { data: urlData } = supabaseClient
-    .storage
-    .from("case-pdfs")
-    .getPublicUrl(fileName);
+ const { data: urlData } = supabaseClient
+  .storage
+  .from("cause-pdfs")
+  .getPublicUrl(fileName);
 
   const pdfUrl = urlData.publicUrl;
 
   // 3. Save to database
   const { error: dbError } = await supabaseClient
-    .from("case-pdfs")
-    .insert([
-      {
-        title: title,
-        pdf_url: pdfUrl
-      }
-    ]);
+  .from("cases")
+  .insert([
+    {
+      title: title,
+      pdf_url: pdfUrl
+    }
+  ]);
 
   if (dbError) {
     alert("Uploaded but DB error: " + dbError.message);
