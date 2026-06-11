@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zunheboto Cause List Portal test 9</title>
+<title>Zunheboto Cause List Portal test 10</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -18,7 +18,7 @@ a{color:blue}
 
 <body>
 
-<h1>Zunheboto Cause List Portal test 9</h1>
+<h1>Zunheboto Cause List Portal test 10</h1>
 
 <div class="card">
 <button onclick="showLogin()">Admin Login</button>
@@ -100,7 +100,7 @@ window.uploadPDF = async function () {
   // 1. Upload file to Supabase Storage
   const { error: uploadError } = await supabaseClient
     .storage
-    .from("cases")
+    .from("case-pdfs")
     .upload(fileName, file);
 
   if (uploadError) {
@@ -111,14 +111,14 @@ window.uploadPDF = async function () {
   // 2. Get public URL
   const { data: urlData } = supabaseClient
     .storage
-    .from("cases")
+    .from("case-pdfs")
     .getPublicUrl(fileName);
 
   const pdfUrl = urlData.publicUrl;
 
   // 3. Save to database
   const { error: dbError } = await supabaseClient
-    .from("cases")
+    .from("case-pdfs")
     .insert([
       {
         title: title,
@@ -138,7 +138,7 @@ window.uploadPDF = async function () {
 // LOAD LIST (FIXED)
 window.loadCauseLists = async function () {
   const { data, error } = await supabaseClient
-    .from("cases")
+    .from("case-pdfs")
     .select("*")
     .order("id", { ascending: false });
 
