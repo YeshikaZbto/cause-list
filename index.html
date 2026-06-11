@@ -4,14 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zunheboto Cause List Portal test 1</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 body{font-family:Arial,sans-serif;max-width:900px;margin:auto;padding:20px;background:#f5f5f5}
 .card,.case{background:#fff;padding:15px;border-radius:10px;margin-bottom:12px}
 .hidden{display:none}
 button,input{padding:10px;margin:5px}
+a{color:blue}
 </style>
 </head>
+
 <body>
 
 <h1>Zunheboto Cause List Portal test 1</h1>
@@ -42,16 +46,17 @@ button,input{padding:10px;margin:5px}
 const SUPABASE_URL = "https://pxaggcmzbhmxfpuyaofk.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4YWdnY216YmhteGZwdXlhb2ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNTIxMTUsImV4cCI6MjA5NjcyODExNX0.F_1Gv2gbucd89xkCPyi_MNBGfZeR3G-R93DAWdxxxmM";
 
-// IMPORTANT: only one declaration
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
+// LOGIN BOX
 window.showLogin = function() {
   document.getElementById("loginBox").classList.remove("hidden");
 };
 
+// LOGIN
 window.login = async function() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -66,11 +71,13 @@ window.login = async function() {
   loadCauseLists();
 };
 
+// LOGOUT
 window.logout = async function() {
   await supabaseClient.auth.signOut();
   location.reload();
 };
 
+// CHECK USER
 window.checkUser = async function() {
   const { data } = await supabaseClient.auth.getUser();
   if (data.user) {
@@ -78,19 +85,86 @@ window.checkUser = async function() {
   }
 };
 
-window.uploadPDF = async function() {
-  alert("Replace Supabase credentials before use.");
+// UPLOAD PDF (FIXED)
+window.uploadPDF = async function () {
+  const title = document.getElementById("title").value;
+  const file = document.getElementById("pdfFile").files[0];
+
+  if (!title || !file) {
+    alert("Please enter title and select PDF file");
+    return;
+  }
+
+  const fileName = Date.now() + "_" + file.name;
+
+  // 1. Upload file to Supabase Storage
+  const { error: uploadError } = await supabaseClient
+    .storage
+    .from("cause-pdfs")
+    .upload(fileName, file);
+
+  if (uploadError) {
+    alert("Upload failed: " + uploadError.message);
+    return;
+  }
+
+  // 2. Get public URL
+  const { data: urlData } = supabaseClient
+    .storage
+    .from("cause-pdfs")
+    .getPublicUrl(fileName);
+
+  const pdfUrl = urlData.publicUrl;
+
+  // 3. Save to database
+  const { error: dbError } = await supabaseClient
+    .from("cases")
+    .insert([
+      {
+        title: title,
+        pdf_url: pdfUrl
+      }
+    ]);
+
+  if (dbError) {
+    alert("Uploaded but DB error: " + dbError.message);
+    return;
+  }
+
+  alert("PDF uploaded successfully!");
+  loadCauseLists();
 };
 
-window.deleteCase = async function(id) {
-  alert("Implement delete after connecting Supabase.");
+// LOAD LIST (FIXED)
+window.loadCauseLists = async function () {
+  const { data, error } = await supabaseClient
+    .from("cases")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    document.getElementById("list").innerHTML =
+      "<div class='case'>Error loading data</div>";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    document.getElementById("list").innerHTML =
+      "<div class='case'>No cause lists found</div>";
+    return;
+  }
+
+  document.getElementById("list").innerHTML = data
+    .map(c => `
+      <div class="case">
+        <h3>${c.title}</h3>
+        <a href="${c.pdf_url}" target="_blank">View PDF</a>
+      </div>
+    `)
+    .join("");
 };
 
-window.loadCauseLists = async function() {
-  document.getElementById("list").innerHTML =
-    "<div class='case'>Portal template loaded successfully.</div>";
-};
-
+// INIT
 checkUser();
 loadCauseLists();
 </script>
