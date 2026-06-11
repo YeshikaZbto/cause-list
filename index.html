@@ -3,61 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cause List Portal Admin</title>
+<title>Cause List Portal</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{font-family:Arial,sans-serif;max-width:1100px;margin:auto;padding:20px;background:#f5f5f5}
+body{font-family:Arial,sans-serif;max-width:1400px;margin:auto;padding:20px;background:#f5f5f5}
 .card{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px}
 .hidden{display:none}
 input,select,button{padding:8px;margin:4px}
-table{width:100%;border-collapse:collapse;background:#fff}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
 th,td{border:1px solid #ddd;padding:8px}
 th{background:#eee}
 </style>
 </head>
 <body>
 
-<h1>1 Cause List Portal</h1>
+<h1>Cause List Portal</h1>
 
 <div class="card">
 <button onclick="showLogin()">Admin Login</button>
 </div>
 
 <div id="loginBox" class="card hidden">
-<h3>Admin Login</h3>
 <input id="email" type="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
 <button onclick="login()">Login</button>
 </div>
 
 <div id="adminPanel" class="card hidden">
-<h3>Add / Edit Cause List</h3>
-
-<input type="hidden" id="caseId">
+<input type="hidden" id="recordId">
 
 <select id="district">
 <option>Zunheboto</option>
 <option>Dimapur</option>
 <option>Kohima</option>
 <option>Mokokchung</option>
-<option>Tuensang</option>
-<option>Mon</option>
-<option>Wokha</option>
-<option>Phek</option>
-<option>Kiphire</option>
-<option>Longleng</option>
-<option>Peren</option>
-<option>Noklak</option>
-<option>Shamator</option>
-<option>Chümoukedima</option>
-<option>Niuland</option>
-<option>Tseminyu</option>
 </select>
 
-<input id="title" placeholder="Title">
-<input id="pdf_url" placeholder="PDF URL">
+<input id="slno" placeholder="Sl. No.">
+<input id="case_no" placeholder="Case No.">
+<input id="section_detail" placeholder="Section Detail">
+<input id="accused" placeholder="Name of Accused / Petitioner">
+<input id="counsels" placeholder="Name of Counsels">
+<input id="status" placeholder="Status">
+<input id="hearing_date" type="date">
 
-<button onclick="saveCase()">Save</button>
+<button onclick="saveRecord()">Save</button>
 <button onclick="clearForm()">Clear</button>
 <button onclick="logout()">Logout</button>
 </div>
@@ -69,10 +59,14 @@ th{background:#eee}
 <table>
 <thead>
 <tr>
-<th>ID</th>
+<th>Sl. No.</th>
+<th>Case No.</th>
+<th>Section Detail</th>
+<th>Name of Accused / Petitioner</th>
+<th>Name of Counsels</th>
+<th>Status</th>
+<th>Date of Hearing</th>
 <th>District</th>
-<th>Title</th>
-<th>PDF</th>
 <th>Actions</th>
 </tr>
 </thead>
@@ -80,138 +74,108 @@ th{background:#eee}
 </table>
 
 <script>
-const SUPABASE_URL = "https://pxaggcmzbhmxfpuyaofk.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4YWdnY216YmhteGZwdXlhb2ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNTIxMTUsImV4cCI6MjA5NjcyODExNX0.F_1Gv2gbucd89xkCPyi_MNBGfZeR3G-R93DAWdxxxmM";
+const SUPABASE_URL="YOUR_SUPABASE_URL";
+const SUPABASE_KEY="YOUR_SUPABASE_ANON_KEY";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+window.showLogin=()=>document.getElementById("loginBox").classList.remove("hidden");
 
-window.showLogin=function(){
- document.getElementById("loginBox").classList.remove("hidden");
-}
-
-window.login=async function(){
- const email=document.getElementById("email").value;
- const password=document.getElementById("password").value;
-
- const {error}=await supabaseClient.auth.signInWithPassword({email,password});
-
- if(error){ alert(error.message); return; }
-
+window.login=async()=>{
+ const {error}=await supabaseClient.auth.signInWithPassword({
+  email:document.getElementById("email").value,
+  password:document.getElementById("password").value
+ });
+ if(error) return alert(error.message);
  checkUser();
-}
+};
 
-window.logout=async function(){
- await supabaseClient.auth.signOut();
- location.reload();
-}
+window.logout=async()=>{await supabaseClient.auth.signOut();location.reload();};
 
-window.checkUser=async function(){
+window.checkUser=async()=>{
  const {data}=await supabaseClient.auth.getUser();
- if(data.user){
-   document.getElementById("adminPanel").classList.remove("hidden");
- }
-}
+ if(data.user) document.getElementById("adminPanel").classList.remove("hidden");
+};
 
-window.clearForm=function(){
- document.getElementById("caseId").value="";
- document.getElementById("title").value="";
- document.getElementById("pdf_url").value="";
-}
+window.clearForm=()=>{
+ ["recordId","slno","case_no","section_detail","accused","counsels","status","hearing_date"]
+ .forEach(id=>document.getElementById(id).value="");
+};
 
-window.saveCase=async function(){
+window.saveRecord=async()=>{
+ const id=document.getElementById("recordId").value;
 
- const id=document.getElementById("caseId").value;
- const district=document.getElementById("district").value;
- const title=document.getElementById("title").value;
- const pdf_url=document.getElementById("pdf_url").value;
-
- if(!title) return alert("Title required");
+ const row={
+  district:district.value,
+  slno:slno.value,
+  case_no:case_no.value,
+  section_detail:section_detail.value,
+  accused:accused.value,
+  counsels:counsels.value,
+  status:status.value,
+  hearing_date:hearing_date.value
+ };
 
  let result;
-
  if(id){
-   result=await supabaseClient
-   .from("cases")
-   .update({district,title,pdf_url})
-   .eq("id",id);
+   result=await supabaseClient.from("cases").update(row).eq("id",id);
  }else{
-   result=await supabaseClient
-   .from("cases")
-   .insert([{district,title,pdf_url}]);
+   result=await supabaseClient.from("cases").insert([row]);
  }
 
- if(result.error){
-   alert(result.error.message);
-   return;
- }
-
+ if(result.error) return alert(result.error.message);
  clearForm();
  loadCases();
-}
+};
 
-window.editCase=function(c){
- document.getElementById("caseId").value=c.id;
- document.getElementById("district").value=c.district || "Zunheboto";
- document.getElementById("title").value=c.title || "";
- document.getElementById("pdf_url").value=c.pdf_url || "";
-}
+window.editRecord=(r)=>{
+ recordId.value=r.id||"";
+ district.value=r.district||"";
+ slno.value=r.slno||"";
+ case_no.value=r.case_no||"";
+ section_detail.value=r.section_detail||"";
+ accused.value=r.accused||"";
+ counsels.value=r.counsels||"";
+ status.value=r.status||"";
+ hearing_date.value=r.hearing_date||"";
+};
 
-window.deleteCase=async function(id){
- if(!confirm("Delete this record?")) return;
-
- const {error}=await supabaseClient
- .from("cases")
- .delete()
- .eq("id",id);
-
- if(error){
-   alert(error.message);
-   return;
- }
-
+window.deleteRecord=async(id)=>{
+ if(!confirm("Delete record?")) return;
+ const {error}=await supabaseClient.from("cases").delete().eq("id",id);
+ if(error) return alert(error.message);
  loadCases();
-}
+};
 
-window.loadCases=async function(){
-
- const search=document.getElementById("search").value.toLowerCase();
-
- const {data,error}=await supabaseClient
- .from("cases")
- .select("*")
- .order("id",{ascending:false});
+window.loadCases=async()=>{
+ const {data,error}=await supabaseClient.from("cases").select("*").order("id",{ascending:false});
 
  if(error){
-   document.getElementById("tableBody").innerHTML =
-   "<tr><td colspan='5'>"+error.message+"</td></tr>";
-   return;
+  tableBody.innerHTML=`<tr><td colspan="9">${error.message}</td></tr>`;
+  return;
  }
 
- const filtered=data.filter(x =>
-   (x.title||"").toLowerCase().includes(search) ||
-   (x.district||"").toLowerCase().includes(search)
- );
+ const search=(document.getElementById("search").value||"").toLowerCase();
 
- document.getElementById("tableBody").innerHTML = filtered.map(c=>`
+ tableBody.innerHTML=data.filter(r=>JSON.stringify(r).toLowerCase().includes(search))
+ .map(r=>`
  <tr>
-   <td>${c.id}</td>
-   <td>${c.district||""}</td>
-   <td>${c.title||""}</td>
-   <td>${c.pdf_url ? `<a href="${c.pdf_url}" target="_blank">Open</a>` : ""}</td>
-   <td>
-      <button onclick='editCase(${JSON.stringify(c)})'>Edit</button>
-      <button onclick='deleteCase(${c.id})'>Delete</button>
-   </td>
- </tr>
- `).join("");
-}
+ <td>${r.slno||""}</td>
+ <td>${r.case_no||""}</td>
+ <td>${r.section_detail||""}</td>
+ <td>${r.accused||""}</td>
+ <td>${r.counsels||""}</td>
+ <td>${r.status||""}</td>
+ <td>${r.hearing_date||""}</td>
+ <td>${r.district||""}</td>
+ <td>
+ <button onclick='editRecord(${JSON.stringify(r)})'>Edit</button>
+ <button onclick='deleteRecord(${r.id})'>Delete</button>
+ </td>
+ </tr>`).join("");
+};
 
 checkUser();
 loadCases();
 </script>
-
 </body>
 </html>
