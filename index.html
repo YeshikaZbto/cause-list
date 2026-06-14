@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<!-- thi two lines is to add downloadable feature like export as PDF   --> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zunheboto Cause List Portal</title>
@@ -17,7 +23,7 @@ th{background:#eee}
 </head>
 <body>
 
-<h1>Zunheboto Cause List Portal 3</h1>
+<h1>Zunheboto Cause List Portal 4</h1>
 
 <!-- to hide the login button after login
     
@@ -104,6 +110,7 @@ th{background:#eee}
     <option value="Shamator">Shamator</option>
     <option value="Tseminyu">Tseminyu</option>
     <option value="Meluri">Meluri</option>
+      <button onclick="exportPDF()">Export PDF</button> <!-- this is to add the button to export as PDF-->
   </select>
 </div>
 
@@ -127,6 +134,48 @@ th{background:#eee}
 </table>
 
 <script>
+//from this part is to make the PDF work 
+    window.exportPDF = function () {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.text("Cause List Portal Report", 14, 10);
+
+  const rows = [];
+
+  document.querySelectorAll("#tableBody tr").forEach(tr => {
+    const cols = tr.querySelectorAll("td");
+
+    rows.push([
+      cols[0]?.innerText,
+      cols[1]?.innerText,
+      cols[2]?.innerText,
+      cols[3]?.innerText,
+      cols[4]?.innerText,
+      cols[5]?.innerText,
+      cols[6]?.innerText,
+      cols[7]?.innerText
+    ]);
+  });
+
+  doc.autoTable({
+    head: [[
+      "Sl No",
+      "Case No",
+      "Section",
+      "Accused",
+      "Counsels",
+      "Status",
+      "Date",
+      "District"
+    ]],
+    body: rows
+  });
+
+  doc.save("cause-list.pdf");
+};
+// To this part of the dode
+    
 const SUPABASE_URL = "https://pxaggcmzbhmxfpuyaofk.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4YWdnY216YmhteGZwdXlhb2ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNTIxMTUsImV4cCI6MjA5NjcyODExNX0.F_1Gv2gbucd89xkCPyi_MNBGfZeR3G-R93DAWdxxxmM";
 
