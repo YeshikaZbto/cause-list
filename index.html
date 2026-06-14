@@ -17,7 +17,7 @@ th{background:#eee}
 </head>
 <body>
 
-<h1>Zunheboto Cause List Portal 2</h1>
+<h1>Zunheboto Cause List Portal 3</h1>
 
 <!-- to hide the login button after login
     
@@ -75,10 +75,40 @@ th{background:#eee}
 <button onclick="logout()">Logout</button>
 </div>
 
+    
+<!-- adding both search box as well as the District wise dropdown    
 <div class="card">
 <input id="search" placeholder="Search..." onkeyup="loadCases()">
 </div>
+-->
+    
+<div class="card">
+  <input id="search" placeholder="Search..." onkeyup="loadCases()">
 
+  <select id="districtFilter" onchange="loadCases()">
+    <option value="">All Districts</option>
+    <option value="Dimapur">Dimapur</option>
+    <option value="Kohima">Kohima</option>
+    <option value="Mokokchung">Mokokchung</option>
+    <option value="Tuensang">Tuensang</option>
+    <option value="Wokha">Wokha</option>
+    <option value="Zunheboto">Zunheboto</option>
+    <option value="Mon">Mon</option>
+    <option value="Phek">Phek</option>
+    <option value="Kiphire">Kiphire</option>
+    <option value="Longleng">Longleng</option>
+    <option value="Peren">Peren</option>
+    <option value="Noklak">Noklak</option>
+    <option value="Chümoukedima">Chümoukedima</option>
+    <option value="Niuland">Niuland</option>
+    <option value="Shamator">Shamator</option>
+    <option value="Tseminyu">Tseminyu</option>
+    <option value="Meluri">Meluri</option>
+  </select>
+</div>
+
+
+    
 <table>
 <thead>
 <tr>
@@ -256,9 +286,18 @@ window.loadCases=async()=>{
   return;
  }
 
- const search=(document.getElementById("search").value||"").toLowerCase();
+ //const search=(document.getElementById("search").value||"").toLowerCase();
+ //tableBody.innerHTML=data.filter(r=>JSON.stringify(r).toLowerCase().includes(search))
+// for the search and the dropdown to add the load of districts
+ const search = (document.getElementById("search").value || "").toLowerCase();
+const districtFilter = document.getElementById("districtFilter").value;
 
- tableBody.innerHTML=data.filter(r=>JSON.stringify(r).toLowerCase().includes(search))
+tableBody.innerHTML = data
+.filter(r => {
+  const matchesSearch = JSON.stringify(r).toLowerCase().includes(search);
+  const matchesDistrict = districtFilter === "" || r.district === districtFilter;
+  return matchesSearch && matchesDistrict;
+})
  //.map(r=>` removed for auto generate
     .map((r,index)=>`
 
