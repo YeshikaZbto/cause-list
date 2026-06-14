@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cause List Portal</title>
+<title>Zunheboto Cause List Portal</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 body{font-family:Arial,sans-serif;max-width:1400px;margin:auto;padding:20px;background:#f5f5f5}
@@ -17,7 +17,7 @@ th{background:#eee}
 </head>
 <body>
 
-<h1>Cause List Portal 1</h1>
+<h1>Zunheboto Cause List Portal 2</h1>
 
 <!-- to hide the login button after login
     
@@ -187,6 +187,9 @@ window.saveRecord=async()=>{
  
 */
 
+/*  Test 2
+
+
  const row={
  district:district.value,
  case_no:case_no.value,
@@ -195,6 +198,17 @@ window.saveRecord=async()=>{
  counsels:counsels.value,
  status:status.value,
  hearing_date:hearing_date.value
+};   
+*/
+
+ const row = {
+ district: document.getElementById("district").value,
+ case_no: document.getElementById("case_no").value,
+ section_detail: document.getElementById("section_detail").value,
+ accused: document.getElementById("accused").value,
+ counsels: document.getElementById("counsels").value,
+ status: document.getElementById("status").value,
+ hearing_date: document.getElementById("hearing_date").value
 };   
 
  let result;
