@@ -19,10 +19,18 @@ th{background:#eee}
 
 <h1>Cause List Portal 1</h1>
 
-<div class="card">
+<!-- to hide the login button after login
+    
+<div class="card">  
 <button onclick="showLogin()">Admin Login</button>
 </div>
+-->
 
+    
+<div class="card" id="loginButtonCard">
+<button onclick="showLogin()">Admin Login</button>
+</div>
+    
 <div id="loginBox" class="card hidden">
 <input id="email" type="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
@@ -53,7 +61,8 @@ th{background:#eee}
     <option value="Meluri">Meluri</option>
 </select>
 
-<input id="slno" placeholder="Sl. No.">
+    
+<!-- <input id="slno" placeholder="Sl. No."> -->
 <input id="case_no" placeholder="Case No.">
 <input id="section_detail" placeholder="Section Detail">
 <input id="accused" placeholder="Name of Accused / Petitioner">
@@ -95,6 +104,9 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 window.showLogin=()=>document.getElementById("loginBox").classList.remove("hidden");
 
+
+/*
+
 window.login=async()=>{
  const {error}=await supabaseClient.auth.signInWithPassword({
   email:document.getElementById("email").value,
@@ -104,22 +116,65 @@ window.login=async()=>{
  checkUser();
 };
 
+*/
+
+    window.login=async()=>{
+ const {error}=await supabaseClient.auth.signInWithPassword({
+  email:document.getElementById("email").value,
+  password:document.getElementById("password").value
+ });
+
+ if(error) return alert(error.message);
+
+// document.getElementById("loginBox").classList.add("hidden");
+ document.getElementById("loginButtonCard").classList.add("hidden");
+ document.getElementById("adminPanel").classList.remove("hidden");
+};
+    
+
 window.logout=async()=>{await supabaseClient.auth.signOut();location.reload();};
 
+
+/*    this part is 
+  
 window.checkUser=async()=>{
  const {data}=await supabaseClient.auth.getUser();
  if(data.user) document.getElementById("adminPanel").classList.remove("hidden");
 };
 
+*/
+    window.checkUser=async()=>{
+ const {data}=await supabaseClient.auth.getUser();
+
+ if(data.user){
+   //document.getElementById("loginBox").classList.add("hidden");
+     document.getElementById("loginButtonCard").classList.add("hidden");
+   document.getElementById("adminPanel").classList.remove("hidden");
+ }else{
+   document.getElementById("adminPanel").classList.add("hidden");
+ }
+};
+    
+/*    
 window.clearForm=()=>{
  ["recordId","slno","case_no","section_detail","accused","counsels","status","hearing_date"]
  .forEach(id=>document.getElementById(id).value="");
 };
+*/
+    
+window.clearForm=()=>{
+ ["recordId","case_no","section_detail","accused","counsels","status","hearing_date"]
+ .forEach(id=>document.getElementById(id).value="");
+
+ district.value="";
+};    
 
 window.saveRecord=async()=>{
  const id=document.getElementById("recordId").value;
 
- const row={
+/*  manual add for the Sl.no
+
+  const row={
   district:district.value,
   slno:slno.value,
   case_no:case_no.value,
@@ -129,6 +184,18 @@ window.saveRecord=async()=>{
   status:status.value,
   hearing_date:hearing_date.value
  };
+ 
+*/
+
+ const row={
+ district:district.value,
+ case_no:case_no.value,
+ section_detail:section_detail.value,
+ accused:accused.value,
+ counsels:counsels.value,
+ status:status.value,
+ hearing_date:hearing_date.value
+};   
 
  let result;
  if(id){
@@ -145,7 +212,7 @@ window.saveRecord=async()=>{
 window.editRecord=(r)=>{
  recordId.value=r.id||"";
  district.value=r.district||"";
- slno.value=r.slno||"";
+//slno.value=r.slno||"";   removed this so that there is no adding of Slno 
  case_no.value=r.case_no||"";
  section_detail.value=r.section_detail||"";
  accused.value=r.accused||"";
@@ -162,7 +229,13 @@ window.deleteRecord=async(id)=>{
 };
 
 window.loadCases=async()=>{
- const {data,error}=await supabaseClient.from("cases").select("*").order("id",{ascending:false});
+// const {data,error}=await supabaseClient.from("cases").select("*").order("id",{ascending:false});  replaced for auto sort
+
+    const {data,error}=await supabaseClient
+.from("cases")
+.select("*")
+.order("district",{ascending:true})
+.order("hearing_date",{ascending:true});
 
  if(error){
   tableBody.innerHTML=`<tr><td colspan="9">${error.message}</td></tr>`;
@@ -172,9 +245,15 @@ window.loadCases=async()=>{
  const search=(document.getElementById("search").value||"").toLowerCase();
 
  tableBody.innerHTML=data.filter(r=>JSON.stringify(r).toLowerCase().includes(search))
- .map(r=>`
+ //.map(r=>` removed for auto generate
+    .map((r,index)=>`
+
+ 
+  
  <tr>
- <td>${r.slno||""}</td>
+
+
+ <td>${index+1}</td>
  <td>${r.case_no||""}</td>
  <td>${r.section_detail||""}</td>
  <td>${r.accused||""}</td>
