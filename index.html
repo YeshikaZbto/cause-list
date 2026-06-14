@@ -23,7 +23,7 @@ th{background:#eee}
 </head>
 <body>
 
-<h1>Zunheboto Cause List Portal 6</h1>
+<h1>Zunheboto Cause List Portal 7</h1>
 
 <!-- to hide the login button after login
     
@@ -65,7 +65,18 @@ th{background:#eee}
     <option value="Shamator">Shamator</option>
     <option value="Tseminyu">Tseminyu</option>
     <option value="Meluri">Meluri</option>
+    
 </select>
+    <!-- this part is to add the courts-->
+    <select id="court">
+    <option value="">Select Court</option>
+    <option value="District & Sessions Court">District & Sessions Court</option>
+    <option value="Chief Judicial Magistrate">Chief Judicial Magistrate</option>
+    <option value="Sub-Divisional Court">Sub-Divisional Court</option>
+    <option value="Judicial Magistrate First Class">Judicial Magistrate First Class</option>
+    <option value="Special Court">Special Court</option>
+</select>
+    
 
     
 <!-- <input id="slno" placeholder="Sl. No."> -->
@@ -126,6 +137,7 @@ th{background:#eee}
 <th>Name of Counsels</th>
 <th>Status</th>
 <th>Date of Hearing</th>
+<th>Court</th>
 <th>District</th>
 <th>Actions</th>
 </tr>
@@ -245,7 +257,7 @@ window.clearForm=()=>{
 */
     
 window.clearForm=()=>{
- ["recordId","case_no","section_detail","accused","counsels","status","hearing_date"]
+ ["recordId","case_no","section_detail","accused","counsels","status","hearing_date","court"]
  .forEach(id=>document.getElementById(id).value="");
 
  district.value="";
@@ -284,7 +296,8 @@ window.saveRecord=async()=>{
 */
 
  const row = {
- district: document.getElementById("district").value,
+ district: document.getElementById("district").value, //this is to add the district    
+ court: document.getElementById("court").value,  //this is to add the court function                    
  case_no: document.getElementById("case_no").value,
  section_detail: document.getElementById("section_detail").value,
  accused: document.getElementById("accused").value,
@@ -309,6 +322,7 @@ window.editRecord=(r)=>{
  recordId.value=r.id||"";
  district.value=r.district||"";
 //slno.value=r.slno||"";   removed this so that there is no adding of Slno 
+ court.value = r.court || "";
  case_no.value=r.case_no||"";
  section_detail.value=r.section_detail||"";
  accused.value=r.accused||"";
@@ -366,6 +380,7 @@ tableBody.innerHTML = data
  <td>${r.status||""}</td>
  <td>${r.hearing_date||""}</td>
  <td>${r.district||""}</td>
+ <td>${r.court || ""}</td>
  <td>
  <button onclick='editRecord(${JSON.stringify(r)})'>Edit</button>
  <button onclick='deleteRecord(${r.id})'>Delete</button>
