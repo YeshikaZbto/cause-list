@@ -23,7 +23,7 @@ th{background:#eee}
 </head>
 <body>
 
-<h1>Zunheboto Cause List Portal 5</h1>
+<h1>Zunheboto Cause List Portal 6</h1>
 
 <!-- to hide the login button after login
     
@@ -206,8 +206,11 @@ window.login=async()=>{
  if(error) return alert(error.message);
 
 // document.getElementById("loginBox").classList.add("hidden");
- document.getElementById("loginButtonCard").classList.add("hidden");
- document.getElementById("adminPanel").classList.remove("hidden");
+//document.getElementById("loginButtonCard").classList.add("hidden");
+ //document.getElementById("adminPanel").classList.remove("hidden");
+
+  // ✅ refresh page after login
+ location.reload();
 };
     
 
